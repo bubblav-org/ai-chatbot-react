@@ -1,0 +1,57 @@
+{
+  "name": "@bubblav/ai-chatbot-react",
+  "version": "1.0.0",
+  "description": "React component for embedding the BubblaV AI chatbot widget",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "build:watch": "vite build --watch",
+    "dev": "vite build --watch",
+    "prepublishOnly": "npm run build",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "bubblav",
+    "chatbot",
+    "ai",
+    "widget",
+    "react",
+    "react-component"
+  ],
+  "author": "BubblaV",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bubblav-org/ai-chatbot-react.git"
+    "directory": "packages/ai-chatbot-react"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.11",
+    "vite-plugin-dts": "^4.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
