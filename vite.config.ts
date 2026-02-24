@@ -1,48 +1,39 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
+import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [
     react(),
     dts({
-      include: ['src/**/*'],
-      exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
-      rollupTypes: true,
+      include: ['src'],
+      insertTypesEntry: true,
     }),
   ],
   build: {
     lib: {
-      entry: 'src/index.ts',
-      name: 'BubblaVWidget',
+      entry: resolve(__dirname, 'src/index.ts'),
+      name: 'BubblaVAIChatbotReact',
       formats: ['es', 'cjs'],
-      fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
+      fileName: (format) => `index.${format === 'es' ? 'esm' : 'cjs'}.js`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
-      output: {
-        exports: 'named',
-        globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-        },
-      },
-    },
-    rollupOptions: {
-      external: ['react', 'react-dom'],
+      // Externalize React so the host project's React is used.
+      // This prevents the "duplicate React" / "useRef is null" error
+      // that occurs when the package bundles its own React instance.
+      external: ['react', 'react-dom', 'react/jsx-runtime'],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
+          'react/jsx-runtime': 'ReactJSXRuntime',
         },
       },
     },
-    cssCodeSplit: false,
-    sourcemap: true,
-    minify: 'esbuild',
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
+  resolve: {
+    // Deduplicate React in development to prevent conflicts
+    dedupe: ['react', 'react-dom'],
   },
 });
