@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 /**
  * BubblaV widget JavaScript API exposed on window.BubblaV
@@ -52,7 +52,9 @@ declare global {
 /**
  * Returns the BubblaV widget API for programmatic control.
  *
- * Returns `null` during SSR or before the widget script has loaded.
+ * Returns `null` during SSR. On the client, waits for the widget script to load.
+ * The hook re-renders once the widget is ready, so subsequent renders will have
+ * the actual widget API.
  *
  * @example
  * function HelpButton() {
@@ -61,8 +63,49 @@ declare global {
  * }
  */
 export function useBubblaVWidget(): BubblaVAPI | null {
-  if (typeof window === 'undefined') return null;
-  return window.BubblaV ?? null;
+  const [widget, setWidget] = useState<BubblaVAPI | null>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Check if widget is already available
+    const api = window.BubblaV;
+    if (api) {
+      setWidget(api);
+      return;
+    }
+
+    // Widget not ready yet, use the ready callback if available
+    // The widget script should expose a ready queue or callback mechanism
+    const checkWidget = () => {
+      if (window.BubblaV) {
+        setWidget(window.BubblaV);
+        return true;
+      }
+      return false;
+    };
+
+    // If ready method exists, use it
+    // Note: We access window.BubblaV again since it might have been set by now
+    const currentApi = window.BubblaV;
+    if (currentApi?.ready) {
+      currentApi.ready(() => {
+        setWidget(window.BubblaV!);
+      });
+    } else {
+      // Poll for widget availability (widget script may not have initialized yet)
+      const interval = setInterval(() => {
+        if (checkWidget()) {
+          clearInterval(interval);
+        }
+      }, 100);
+
+      // Clean up interval on unmount
+      return () => clearInterval(interval);
+    }
+  }, []);
+
+  return widget;
 }
 
 /**
