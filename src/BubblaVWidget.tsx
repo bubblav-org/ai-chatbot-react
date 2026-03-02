@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, forwardRef, useImperativeHandle } from 'react';
 
 const WIDGET_SRC = 'https://www.bubblav.com/widget.js';

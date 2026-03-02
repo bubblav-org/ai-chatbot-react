@@ -2,6 +2,23 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
+import type { Plugin } from 'vite';
+
+// Plugin to preserve "use client" directive in output files
+function preserveUseClient(): Plugin {
+  return {
+    name: 'preserve-use-client',
+    generateBundle(options, bundle) {
+      for (const fileName in bundle) {
+        const file = bundle[fileName];
+        if (file.type === 'chunk' && file.code) {
+          // Prepend "use client" directive if the original source had it
+          file.code = '"use client"\n' + file.code;
+        }
+      }
+    },
+  };
+}
 
 export default defineConfig({
   plugins: [
@@ -10,6 +27,7 @@ export default defineConfig({
       include: ['src'],
       insertTypesEntry: true,
     }),
+    preserveUseClient(),
   ],
   build: {
     lib: {
